@@ -38,11 +38,13 @@
 		</dict>
 	</dict>
 	<key>NSBluetoothAlwaysUsageDescription</key>
-	<string>This application requires bluetooth in order to bla bla bla.</string>
-	<key>NSMotionUsageDescription</key>
-	<string>This application requires location information in order to bla bla bla.</string>
+	<string>This application requires NSBluetoothAlwaysUsageDescription in order to bla bla bla.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>This application requires NSLocationAlwaysAndWhenInUseUsageDescription in order to bla bla bla.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string></string>
+	<string>This application requires NSLocationWhenInUseUsageDescription in order to bla bla bla.</string>
+	<key>NSMotionUsageDescription</key>
+	<string>This application requires NSMotionUsageDescription in order to bla bla bla.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>bluetooth-central</string>

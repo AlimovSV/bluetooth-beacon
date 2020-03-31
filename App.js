@@ -30,7 +30,7 @@ export default class App extends React.Component {
   state = {
     scanning: false,
     peripherals: new Map(),
-    appState: '',
+    appState: 'active',
   };
 
   componentDidMount() {
@@ -71,6 +71,10 @@ export default class App extends React.Component {
 
 
     BackgroundGeolocation.ready({
+      // Controls the rate (in seconds) the BackgroundGeolocation.onHeartbeat event will fire.
+      heartbeatInterval: 60,
+      // On iOS the BackgroundGeolocation.onHeartbeat event will fire only when configured with preventSuspend true.
+      preventSuspend: true,
       // Geolocation Config
       desiredAccuracy: BackgroundGeolocation.DESIRED_ACCURACY_LOW,
       distanceFilter: 10,
@@ -117,11 +121,13 @@ export default class App extends React.Component {
     this.scanForDevices();
   }
 
-  onLocation = () => {
+  onLocation = (location) => {
+    console.log(`[${this.state.appState}]: onLocation`, location);
     this.scanForDevices();
   }
 
-  onHeartbeat = () => {
+  onHeartbeat = (event) => {
+    console.log(`[${this.state.appState}]: onHeartbeat`, event);
     this.scanForDevices();
   }
   handleWillRestoreState = () => {
@@ -177,10 +183,17 @@ export default class App extends React.Component {
   scanForDevices = async () => {
     if (!this.state.scanning) {
       this.setState({ scanning: true });
-      BleManager.scan(['FE9F'], 5, true).then(results => {
-        console.log('Scanning...');
+      try {
+        console.log(`[${this.state.appState}]: Scanning...`);
+
+        const results = await BleManager.scan(null, 5, true);
+
+        console.log('Scanning results: ', results);
+      } catch (error) {
+        console.log('Scanning error: ', error);
+      } finally {
         this.setState({ scanning: false });
-      });
+      }
     }
   }
 
@@ -202,10 +215,12 @@ export default class App extends React.Component {
 
   handleDiscoverPeripheral = (peripheral) => {
     const peripherals = this.state.peripherals;
-    console.log('Got ble peripheral', JSON.stringify(peripheral));
+    console.log(`[${this.state.appState}]: Got ble peripheral`, JSON.stringify(peripheral));
     if (!peripheral.name) {
       peripheral.name = 'NO NAME';
     }
+    const prevPeripheral = peripherals[peripheral.id];
+    peripheral.appState = (prevPeripheral && prevPeripheral.appState) || this.state.appState;
     peripherals.set(peripheral.id, peripheral);
     this.setState({ peripherals });
   }
@@ -292,7 +307,7 @@ export default class App extends React.Component {
               color: '#333333',
               padding: 10,
             }}>
-            {item.name}
+            {item.name} ({item.appState})
           </Text>
           <Text
             style={{
